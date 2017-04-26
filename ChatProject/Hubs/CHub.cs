@@ -19,7 +19,7 @@ namespace ChatProject.Hubs
         /// <param name="_mess">Текст сообщения</param>
         public void SMess(string _name, string _mess)
         {
-
+            
         }
         /// <summary>
         /// Установить соединение с приложением

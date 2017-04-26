@@ -14,10 +14,12 @@ using Owin;
 namespace SignalRMvc
 {
     public class Start
+
     {
         public void Configuration(IAppBuilder app)
         {
             app.MapSignalR();
         }
     }
-}
+} 
+
