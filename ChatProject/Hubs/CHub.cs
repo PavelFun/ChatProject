@@ -12,35 +12,35 @@ namespace ChatProject.Hubs
 {
     class CHub : Hub
     {
-        static List<Client> Users = new List<Client>();
+        static List<User> Users = new List<User>();
 
         /// <summary>
         /// Отправить сообщение
         /// </summary>
         /// <param name="_name">Имя пользователя</param>
         /// <param name="_mess">Текст сообщения</param>
-        public void SMess(string _name, string _mess)
+        public void Send(string name, string message)
         {
-            Clients.All.addMessage(_name, _mess);
+            Clients.All.addMessage(name, message);
         }
         /// <summary>
         /// Установить соединение с приложением
         /// </summary>
         /// <param name="_name">Имя пользователя.</param>
-        public void Connect(string _name)
+        public void Connect(string userName)
         {
             var id = Context.ConnectionId;
 
 
-            if (!Users.Any(x => x.ID == id))
+            if (!Users.Any(x => x.ConnectionId == id))
             {
-                Users.Add(new Client { ID = id, Login = _name });
+                Users.Add(new User { ConnectionId = id, Name = userName });
 
                 // Посылаем сообщение текущему пользователю
-                Clients.Caller.onConnected(id, _name, Users);
+                Clients.Caller.onConnected(id, userName, Users);
 
                 // Посылаем сообщение всем пользователям, кроме текущего
-                Clients.AllExcept(id).onNewUserConnected(id, _name);
+                Clients.AllExcept(id).onNewUserConnected(id, userName);
             }
         }
 
@@ -49,12 +49,12 @@ namespace ChatProject.Hubs
         /// </summary>
         public override System.Threading.Tasks.Task OnDisconnected(bool stopCalled)
         {
-            var item = Users.FirstOrDefault(x => x.ID == Context.ConnectionId);
+            var item = Users.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
             if (item != null)
             {
                 Users.Remove(item);
                 var id = Context.ConnectionId;
-                Clients.All.onUserDisconnected(id, item.Login);
+                Clients.All.onUserDisconnected(id, item.Name);
             }
 
             return base.OnDisconnected(stopCalled);

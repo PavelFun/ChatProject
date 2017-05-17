@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 
 namespace ChatProject.Models
 {
-    public class Client
+    public class User
     {
         /// <summary>
         /// Идентификатор пользователя.
         /// </summary>
-        public string ID { get; set; }
+        public string ConnectionId { get; set; }
         /// <summary>
         /// Имя пользователя.
         /// </summary>
-        public string Login { get; set; }
+        public string Name { get; set; }
     }
 }
