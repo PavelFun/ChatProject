@@ -2,31 +2,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-
-// Берем метод взаимодействия клиента и сервера "Hub".
 using Microsoft.AspNet.SignalR;
-// Используем описанную модель клиента.
 using ChatProject.Models;
 
-namespace ChatProject.Hubs
+namespace SignalRMvc.Hubs
 {
-    class CHub : Hub
+    public class ChatHub : Hub
     {
         static List<User> Users = new List<User>();
 
-        /// <summary>
-        /// Отправить сообщение
-        /// </summary>
-        /// <param name="_name">Имя пользователя</param>
-        /// <param name="_mess">Текст сообщения</param>
+        // Отправка сообщений
         public void Send(string name, string message)
         {
             Clients.All.addMessage(name, message);
         }
-        /// <summary>
-        /// Установить соединение с приложением
-        /// </summary>
-        /// <param name="_name">Имя пользователя.</param>
+
+        // Подключение нового пользователя
         public void Connect(string userName)
         {
             var id = Context.ConnectionId;
@@ -44,9 +35,7 @@ namespace ChatProject.Hubs
             }
         }
 
-        /// <summary>
-        /// Отключение пользователя
-        /// </summary>
+        // Отключение пользователя
         public override System.Threading.Tasks.Task OnDisconnected(bool stopCalled)
         {
             var item = Users.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
