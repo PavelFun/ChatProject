@@ -4,48 +4,77 @@ using System.Text;
 
 namespace ChatServer
 {
+    /// <summary>
+    /// Описание клиента.
+    /// </summary>
     public class ClientObject
     {
+        /// <summary>
+        /// Уникальный идентификатор пользователя.
+        /// </summary>
         protected internal string Id { get; private set; }
+        /// <summary>
+        /// Поток взаимодействия с клиентом.
+        /// </summary>
         protected internal NetworkStream Stream { get; private set; }
+        /// <summary>
+        /// Имя пользователя.
+        /// </summary>
         string userName;
+        /// <summary>
+        /// Объект класса "Клиент" (TcpClient).
+        /// </summary>
         TcpClient client;
-        ServerObject server; // объект сервера
+        /// <summary>
+        /// Объект класса "Сервер".
+        /// </summary>
+        ServerObject server;
 
+        /// <summary>
+        /// Создание клиента.
+        /// </summary>
+        /// <param name="tcpClient">Объект класса "Клиент"(TcpClient).</param>
+        /// <param name="serverObject">Объект класса "Сервер.</param>
         public ClientObject(TcpClient tcpClient, ServerObject serverObject)
         {
+            
+            //Глобальный уникальный идентификатор.
             Id = Guid.NewGuid().ToString();
             client = tcpClient;
             server = serverObject;
+            //Добавление в список подключений данного объекта "Клиент".
             serverObject.AddConnection(this);
         }
 
+        /// <summary>
+        /// Операция обмена сообщениями.
+        /// </summary>
         public void Process()
         {
             try
             {
                 Stream = client.GetStream();
-                // получаем имя пользователя
+                // Получение имени пользователя.
                 string message = GetMessage();
                 userName = message;
 
                 message = userName + " вошел в чат";
-                // посылаем сообщение о входе в чат всем подключенным пользователям
+                // Сообщение о подключении какого-либо пользователя для всех пользователей.
                 server.BroadcastMessage(message, this.Id);
                 Console.WriteLine(message);
-                // в бесконечном цикле получаем сообщения от клиента
+                //Бесконечный цикл, получения сообщения от клиентов.
                 while (true)
                 {
                     try
                     {
                         message = GetMessage();
-                        message = String.Format("{0}: {1}", userName, message);
+                        message = String.Format("{0}: {1}", userName, message); //При отправке сообщений.
                         Console.WriteLine(message);
                         server.BroadcastMessage(message, this.Id);
                     }
                     catch
                     {
-                        message = String.Format("{0}: покинул чат", userName);
+                        message = String.Format("{0}: покинул чат", userName); //При отключении.
                         Console.WriteLine(message);
                         server.BroadcastMessage(message, this.Id);
                         break;
@@ -54,20 +83,23 @@ namespace ChatServer
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine(e.Message); //Сообщение о возможной ошибке.
             }
             finally
             {
-                // в случае выхода из цикла закрываем ресурсы
+                //Закрываем соединение.
                 server.RemoveConnection(this.Id);
                 Close();
             }
         }
 
-        // чтение входящего сообщения и преобразование в строку
+        /// <summary>
+        /// Преобразование получаемого сообщения в строку.
+        /// </summary>
+        /// <returns></returns>
         private string GetMessage()
         {
-            byte[] data = new byte[64]; // буфер для получаемых данных
+            byte[] data = new byte[64]; // Буфер получения.
             StringBuilder builder = new StringBuilder();
             int bytes = 0;
             do
@@ -80,13 +112,15 @@ namespace ChatServer
             return builder.ToString();
         }
 
-        // закрытие подключения
+        /// <summary>
+        /// Операция по закрытию подключения.
+        /// </summary>
         protected internal void Close()
         {
             if (Stream != null)
-                Stream.Close();
+                Stream.Close(); //Закрываем поток.
             if (client != null)
-                client.Close();
+                client.Close(); //Закрываем подключение.
         }
     }
 }

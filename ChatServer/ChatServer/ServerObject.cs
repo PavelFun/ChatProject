@@ -10,30 +10,48 @@ namespace ChatServer
 {
     public class ServerObject
     {
-        static TcpListener tcpListener; // сервер для прослушивания
-        List<ClientObject> clients = new List<ClientObject>(); // все подключения
-
+        /// <summary>
+        /// Объект для прослушивания всех подключений.
+        /// </summary>
+        static TcpListener tcpListener;
+        /// <summary>
+        /// Список всех подключений.
+        /// </summary>
+        List<ClientObject> clients = new List<ClientObject>();
+        /// <summary>
+        /// Добавление в список клиента.
+        /// </summary>
+        /// <param name="clientObject">Объект "Клиент".</param>
         protected internal void AddConnection(ClientObject clientObject)
         {
             clients.Add(clientObject);
         }
+        /// <summary>
+        /// Удаление клиента из списка подключений.
+        /// </summary>
+        /// <param name="id">id клиента.</param>
         protected internal void RemoveConnection(string id)
         {
-            // получаем по id закрытое подключение
+            //Получаем id клиента из списка.
             ClientObject client = clients.FirstOrDefault(c => c.Id == id);
-            // и удаляем его из списка подключений
+            //Удаляем этого клиента.
             if (client != null)
                 clients.Remove(client);
         }
-        // прослушивание входящих подключений
+        /// <summary>
+        /// Прослушивание подключений.
+        /// </summary>
         protected internal void Listen()
         {
             try
             {
+                //Создание потока прослушивания и его запуск
                 tcpListener = new TcpListener(IPAddress.Any, 8888);
                 tcpListener.Start();
+                //Сообщение о запуске.
                 Console.WriteLine("Сервер запущен. Ожидание подключений...");
 
+                ///Бесконечный цикл, открываем новые потоки для каждого принятого подключения.
                 while (true)
                 {
                     TcpClient tcpClient = tcpListener.AcceptTcpClient();
@@ -50,28 +68,33 @@ namespace ChatServer
             }
         }
 
-        // трансляция сообщения подключенным клиентам
+        /// <summary>
+        /// Трансляция сообщения всем клиентам сервера.
+        /// </summary>
+        /// <param name="message">Сообщение.</param>
+        /// <param name="id">Уникальный идентификатор пользователя.</param>
         protected internal void BroadcastMessage(string message, string id)
         {
             byte[] data = Encoding.Unicode.GetBytes(message);
             for (int i = 0; i < clients.Count; i++)
             {
-                if (clients[i].Id != id) // если id клиента не равно id отправляющего
+                if (clients[i].Id != id) //Не отправять отправляющему это сообщение.
                 {
-                    clients[i].Stream.Write(data, 0, data.Length); //передача данных
+                    clients[i].Stream.Write(data, 0, data.Length); //Передача сообщения.
                 }
             }
         }
-        // отключение всех клиентов
+        /// <summary>
+        /// Оключение всех клиентов.
+        /// </summary>
         protected internal void Disconnect()
         {
-            tcpListener.Stop(); //остановка сервера
-
+            tcpListener.Stop(); //Остановка сервера.
             for (int i = 0; i < clients.Count; i++)
             {
-                clients[i].Close(); //отключение клиента
+                clients[i].Close(); //Отключение клиента.
             }
-            Environment.Exit(0); //завершение процесса
+            Environment.Exit(0); //Завершение процесса (работы программы).
         }
     }
 }
