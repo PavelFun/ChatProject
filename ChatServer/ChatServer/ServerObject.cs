@@ -75,13 +75,14 @@ namespace ChatServer
         /// <param name="id">Уникальный идентификатор пользователя.</param>
         protected internal void BroadcastMessage(string message, string id)
         {
+            
             byte[] data = Encoding.Unicode.GetBytes(message);
             for (int i = 0; i < clients.Count; i++)
             {
-                if (clients[i].Id != id) //Не отправять отправляющему это сообщение.
-                {
-                    clients[i].Stream.Write(data, 0, data.Length); //Передача сообщения.
-                }
+               // if (clients[i].Id != id) // если id клиента не равно id отправляющего
+               // {
+                    clients[i].Stream.Write(data, 0, data.Length); //передача данных
+               // }
             }
         }
         /// <summary>

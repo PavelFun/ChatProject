@@ -58,7 +58,7 @@ namespace ChatServer
                 string message = GetMessage();
                 userName = message;
 
-                message = userName + " вошел в чат";
+                message = userName + "    вошел в чат   ";
                 // Сообщение о подключении какого-либо пользователя для всех пользователей.
                 server.BroadcastMessage(message, this.Id);
                 Console.WriteLine(message);

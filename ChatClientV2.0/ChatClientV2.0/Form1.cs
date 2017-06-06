@@ -15,19 +15,16 @@ namespace ChatClientV2._0
 {
     public partial class Form1 : Form
     {
-        /// <summary>
-        /// Имя пользователя, или логин.
-        /// </summary>
-        static string userName;
+
         /// <summary>
         /// Адрес для подключения.
         /// </summary>
-        private const string host = "192.168.1.102";
+        private const string host = "127.0.0.1";
         /// <summary>
         /// Порт для подключения
+        /// <summary>
         /// </summary>
         private const int port = 8888;
-        /// <summary>
         /// Объект класса "Клиент".
         /// </summary>
         static TcpClient client;
@@ -35,57 +32,24 @@ namespace ChatClientV2._0
         /// Объект класса "Сетевой поток".
         /// </summary>
         static NetworkStream stream;
+        /// <summary>
+        /// пустая строка 
+        /// </summary>
+        string readData = null;
 
         public Form1()
         {
             InitializeComponent();
-            rtb_chat.Enabled = false;
-           
+            client = new TcpClient(); // Создание нового объекта "Клиент".
         }
         /// <summary>
         /// Операция отправки сообщения
         /// </summary>
-        static void SendMessage()
+         void SendMessage()
         {
-            while (true)
-            {
-                string message;
-                Form1 fm = new Form1();
-                message= fm.rtb_send.Text;
-                byte[] data = Encoding.Unicode.GetBytes(message);
+                byte[] data = Encoding.Unicode.GetBytes(rtb_send.Text);
                 stream.Write(data, 0, data.Length);
-            }
-        }
-        /// <summary>
-        /// Операция приема сообщения
-        /// </summary>
-        static void ReceiveMessage()
-        {
-            while (true)
-            {
-                try
-                {
-                    byte[] data = new byte[64]; // буфер для получения сообщения
-                    StringBuilder builder = new StringBuilder();
-                    int bytes = 0;
-                    do
-                    {
-                        bytes = stream.Read(data, 0, data.Length);
-                        builder.Append(Encoding.Unicode.GetString(data, 0, bytes));
-                    }
-                    while (stream.DataAvailable);
-
-                    string message = builder.ToString();
-                    Form1 fm = new Form1();
-                    fm.rtb_chat.Text = message;
-
-                }
-                catch
-                {
-                    MessageBox.Show("Подключение прервано!"); //поведение в случае потери связи
-                    Disconnect();
-                }
-            }
+                stream.Flush();//читска буфера
         }
         /// <summary>
         /// Метод оключения (прерывание соединения).
@@ -100,52 +64,91 @@ namespace ChatClientV2._0
         }
         private void rtb_chat_TextChanged(object sender, EventArgs e)
         {
-            
+            rtb_chat.SelectionStart = rtb_chat.Text.Length;//автоматическая прокрутка чата 
+            rtb_chat.ScrollToCaret();
         }
 
         private void tb_NIC_TextChanged(object sender, EventArgs e)
         {
-            userName = tb_NIC.Text;
         }
-        private void conect()
-        {
-            client = new TcpClient();
-            try
-            {
-                client.Connect(host, port); //подключение клиента.
-                stream = client.GetStream(); // получаем поток.
-
-                string message = userName;
-                byte[] data = Encoding.Unicode.GetBytes(message);
-                stream.Write(data, 0, data.Length);
-
-                // Поток получения данных (исполняет операцию получения данных).
-                Thread receiveThread = new Thread(new ThreadStart(ReceiveMessage));
-                receiveThread.Start(); //Запуск потока получения данных.
-                rtb_chat.Text = ("Добро пожаловать" + userName);
-                SendMessage();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message); // Иначе выводим сообщение о возникшей ошибке.
-            }
-            finally
-            {
-                Disconnect();
-            }
-        }
+        /// <summary>
+        /// метод который реагирует на нажатие кнопки вход 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btn_enter_Click(object sender, EventArgs e)
         {
-            conect();
-        }
+           
+            client.Connect(host, port); //подключение клиента.
+            stream = client.GetStream(); // получаем поток.
+            
+            //Создание буффера для передачи ника на сервер 
+            byte[] buff_Nic = Encoding.Unicode.GetBytes(tb_NIC.Text);
+            stream.Write(buff_Nic, 0, buff_Nic.Length);//запись буффера в поток
+            stream.Flush();//читска буффера
+            rtb_chat.Text = "Подключение выполнено";
+            btn_send_Click(this, e);// запуск приема сообщений от чата .
 
+        }
+        /// <summary>
+        /// метод который реагирует на нажатие кнопки отправить .
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btn_send_Click(object sender, EventArgs e)
         {
-            SendMessage();
-            rtb_send.Clear();
+            stream = client.GetStream();
+
+            byte[] outStream = Encoding.Unicode.GetBytes(rtb_send.Text);
+            stream.Write(outStream, 0, outStream.Length);
+            stream.Flush();
+            rtb_send.Text = null;
+            Thread chatTH = new Thread(Get_message);//создание нового потока .
+            chatTH.Start();// запуск потока . 
+            SendMessage();// вызов метода отправки сообщений .
         }
 
         private void btn_send_KeyDown(object sender, KeyEventArgs e)
+        {
+     
+        }
+        /// <summary>
+        /// метод для получения сообщений .
+        /// </summary>
+        private void Get_message()
+        {
+            while (true)
+            {
+                try
+                {
+
+                    stream = client.GetStream();
+                    int buff_size = 0;
+                    byte[] inStream = new byte[10025];
+                    buff_size = 1000;
+                    stream.Read(inStream, 0, buff_size);
+                    string returndata = Encoding.Unicode.GetString(inStream);
+                    readData = " " + returndata;
+                    msg();
+                }
+
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Разорвано соединение с сервером("); // Иначе выводим сообщение о возникшей ошибке.
+                    Disconnect();
+                }
+            }
+            
+        }
+        private void msg()
+        {
+            if (this.InvokeRequired)
+                this.Invoke(new MethodInvoker(msg));
+            else
+                rtb_chat.Text = rtb_chat.Text + Environment.NewLine + ">>" + readData;
+        }
+
+        private void rtb_send_TextChanged(object sender, EventArgs e)
         {
 
         }
