@@ -99,10 +99,10 @@ namespace ChatClientV2._0
         {
             stream = client.GetStream();
 
-            byte[] outStream = Encoding.Unicode.GetBytes(rtb_send.Text);
-            stream.Write(outStream, 0, outStream.Length);
-            stream.Flush();
-            rtb_send.Text = null;
+            byte[] outStream = Encoding.Unicode.GetBytes(rtb_send.Text);// создание буфера и записывание туда содержимого текст бокса .
+            stream.Write(outStream, 0, outStream.Length);//запись в поток буфера
+            stream.Flush();//Чистка буфера.
+            rtb_send.Text = null;//Очистка текст бокса .
             Thread chatTH = new Thread(Get_message);//создание нового потока .
             chatTH.Start();// запуск потока . 
             SendMessage();// вызов метода отправки сообщений .
@@ -122,7 +122,7 @@ namespace ChatClientV2._0
                 try
                 {
 
-                    stream = client.GetStream();
+                    stream = client.GetStream(); // получени потока для с работы с сообщениями 
                     int buff_size = 0;
                     byte[] inStream = new byte[10025];
                     buff_size = 1000;
@@ -140,6 +140,9 @@ namespace ChatClientV2._0
             }
             
         }
+        /// <summary>
+        /// метод передачи сообщения в чат .
+        /// </summary>
         private void msg()
         {
             if (this.InvokeRequired)
@@ -162,22 +165,38 @@ namespace ChatClientV2._0
         {
 
         }
-
+        /// <summary>
+        /// метод копирования .
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void копироватьToolStripMenuItem_Click(object sender, EventArgs e)
         {
             rtb_send.Copy();
         }
-
+        /// <summary>
+        /// метод вставки.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void вставитьToolStripMenuItem_Click(object sender, EventArgs e)
         {
             rtb_send.Paste();
         }
-
+        /// <summary>
+        /// метод вырезать.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void вырезатьToolStripMenuItem_Click(object sender, EventArgs e)
         {
             rtb_send.Cut();
         }
-
+        /// <summary>
+        /// метод Об авторах.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void обАвтореToolStripMenuItem_Click(object sender, EventArgs e)
         {
             MessageBox.Show("Разработчиками данной программы являются : Павел Гуничев , Морозов Иван, Мокров ФАН Макс,Смирнов Дмитрий , Зарубина Анастасия. ");
