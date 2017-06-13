@@ -93,9 +93,9 @@ namespace ChatServer
             tcpListener.Stop(); //Остановка сервера.
             for (int i = 0; i < clients.Count; i++)
             {
-                clients[i].Close(); //Отключение клиентаа.
+                clients[i].Close(); //Отключение клиента.
             }
-            Environment.Exit(0); //Завершение пероцесса (работы программы).
+            Environment.Exit(0); //Завершение процесса (работы программы).
         }
     }
 }
