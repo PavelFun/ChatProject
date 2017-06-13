@@ -74,7 +74,7 @@ namespace ChatServer
                     }
                     catch
                     {
-                        message = String.Format("{0}: покинул чат", userName); //При отключении.
+                        message = String.Format("пользователь {0}: покинул чат", userName); //При отключении.
                         Console.WriteLine(message);
                         server.BroadcastMessage(message, this.Id);
                         break;
