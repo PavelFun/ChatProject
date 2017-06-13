@@ -152,5 +152,45 @@ namespace ChatClientV2._0
         {
 
         }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void копироватьToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            rtb_send.Copy();
+        }
+
+        private void вставитьToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            rtb_send.Paste();
+        }
+
+        private void вырезатьToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            rtb_send.Cut();
+        }
+
+        private void обАвтореToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Разработчиками данной программы являются : Павел Гуничев , Морозов Иван, Мокров ФАН Макс,Смирнов Дмитрий , Зарубина Анастасия. ");
+        }
+
+        private void выходToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+           Disconnect();
+        }
+
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            
+        }
     }
 }
